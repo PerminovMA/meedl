@@ -94,6 +94,9 @@ class AdvCampaign(models.Model):
                                 default=None)  # field copies from the model Offer when CampaignAdv is created
     creation_date = models.DateTimeField(auto_now_add=True)
 
+    def get_tracking_url(self):
+        pass
+
     @staticmethod
     def offer_url_copier(sender, instance, **kwargs):
         """ copies offer_url from Offer to CampaignAdv when CampaignAdv is created

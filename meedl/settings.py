@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'meedl_core_app',
+    'control_panel_app',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,3 +83,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+DOMAIN_URL = 'http://127.0.0.1:8000/'
+LOGIN_URL = 'control_panel:login_url'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "staticfiles"),
+)

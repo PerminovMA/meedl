@@ -1,0 +1,19 @@
+<div>
+
+    {% if invalid_form %}
+        Please fill form correctly.
+    {% endif %}
+
+    {% if campaign_form %}
+        <form action="{% url 'control_panel:create_campaign_url' %}" method="post">
+            {% csrf_token %}
+            {{ campaign_form }}
+            <input type="submit" value="Submit" />
+        </form>
+    {% else %}
+
+        created
+
+    {% endif %}
+
+</div>

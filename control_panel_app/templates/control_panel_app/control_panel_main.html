@@ -1,0 +1,18 @@
+{% extends "control_panel_app/site_template.html" %}
+
+
+{% block left_sidebar_items %}
+
+    <ul class="nav nav-sidebar">
+        <li class="active"><a href="#/">Main page</a></li>
+        <li><a href="#">Clients</a></li>
+        <li><a href="#">Offers</a></li>
+        <li><a href="#/campaigns">Campaigns</a></li>
+        <!-- <li><a href="#/create_campaign">Create campaign</a></li> -->
+    </ul>
+
+{% endblock %}
+
+{% block body_content %}
+    <div ng-view></div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "control_panel_app/base.html" %}
+{% load staticfiles %}
+
+{% block html_tag_attribute %}ng-app="control_panel_angular_module"{% endblock %}
+
+{% block title %} meedl control panel {% endblock %}
+
+{% block additional_stylesheets %}
+    <!-- Custom styles for this template -->
+    <link href="{% static "control_panel_app/css/control_panel.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block additional_scripts %}
+
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-resource.min.js"></script>
+
+    <script src="{% static "control_panel_app/js/angularjs_scripts/control_panel_module.js" %}"></script>
+    <script src="{% static "control_panel_app/js/angularjs_scripts/control_panel_router.js" %}"></script>
+    <script src="{% static "control_panel_app/js/angularjs_scripts/campaigns_controller.js" %}"></script>
+
+{% endblock %}
+
+
+{% block navbar %}
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">meedl control panel</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </nav>
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+
+        <!-- left sidebar bar -->
+        <div class="col-sm-3 col-md-2 sidebar">
+            {% block left_sidebar_items %} {% endblock %}
+
+            <!-- <ul class="nav nav-sidebar">
+                <li class="active"><a href="#">Overview</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Analytics</a></li>
+            </ul>
+            <ul class="nav nav-sidebar">
+                <li><a href="">Nav item</a></li>
+                <li><a href="">Nav item again</a></li>
+            </ul> -->
+        </div>
+
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            {% block body_content %}{% endblock %}
+        </div>
+
+    </div>
+
+{% endblock %}
