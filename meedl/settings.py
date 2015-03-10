@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'meedl_core_app',
     'control_panel_app',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
