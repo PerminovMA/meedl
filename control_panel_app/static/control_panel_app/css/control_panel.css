@@ -28,8 +28,10 @@
 }
 
 .nav-sidebar > .active > a {
-    color: #fff;
-    background-color: #428bca;
+    color: #000000;
+    font-weight: bold;
+    /*color: #fff;*/
+    /*background-color: #428bca;*/
 }
 
 /*
@@ -40,9 +42,28 @@
     padding: 20px;
 }
 
-@media (min-width: 768px) {
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
     .main {
-        padding-top: 60px;
+        padding-top: 25px;
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) {
+    .main {
+        padding-top: 25px;
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: @screen-lg-min) {
+    .main {
+        padding-top: 25px;
         padding-right: 40px;
         padding-left: 40px;
     }

@@ -8,6 +8,14 @@ app.config(function ($routeProvider) {
             templateUrl: '/static/control_panel_app/pages/test1.html',
             controller: 'RepsListController'
         })
+        .when('/clients', {
+            templateUrl: '/control_panel/clients',
+            controller: 'ClientsController'
+        })
+        .when('/offers', {
+            templateUrl: '/control_panel/offers',
+            controller: 'OffersController'
+        })
         .when('/campaigns', {
             templateUrl: '/control_panel/campaigns',
             controller: 'CampaignsController'

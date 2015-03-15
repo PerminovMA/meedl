@@ -3,10 +3,10 @@
 
 {% block left_sidebar_items %}
 
-    <ul class="nav nav-sidebar">
-        <li class="active"><a href="#/">Main page</a></li>
-        <li><a href="#">Clients</a></li>
-        <li><a href="#">Offers</a></li>
+    <ul ng-click="set_active($event)" class="nav nav-sidebar" ng-controller="LeftSidebarController">
+        <li><a href="#/">Main page</a></li>
+        <li><a href="#/clients">Clients</a></li>
+        <li><a href="#/offers">Offers</a></li>
         <li><a href="#/campaigns">Campaigns</a></li>
         <!-- <li><a href="#/create_campaign">Create campaign</a></li> -->
     </ul>

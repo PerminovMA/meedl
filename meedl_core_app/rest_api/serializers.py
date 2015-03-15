@@ -1,7 +1,22 @@
 __author__ = 'PerminovMA@live.ru'
 
 from rest_framework import serializers
-from meedl_core_app.models import AdvCampaign, Offer, AdvPlatform, DirectionAdv
+from meedl_core_app.models import AdvCampaign, Offer, AdvPlatform, DirectionAdv, Client
+from django.contrib.auth.models import User
+
+
+class ManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
+
+
+class ClientSerializer(serializers.ModelSerializer):
+    manager = ManagerSerializer()
+
+    class Meta:
+        model = Client
+        fields = ('id', 'manager', 'name', 'site_url', 'type')
 
 
 class DirectionAdvSerializer(serializers.ModelSerializer):
@@ -17,9 +32,14 @@ class AdvPlatformSerializer(serializers.ModelSerializer):
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    client = ClientSerializer()
+    manager = ManagerSerializer()
+
     class Meta:
         model = Offer
-        fields = ('id', 'name')
+        fields = (
+            'id', 'name', 'client', 'manager', 'offer_url', 'revenue_per_lead', 'currency_type', 'limit_number_leads',
+            'is_active')
 
 
 class AdvCampaignSerializer(serializers.ModelSerializer):

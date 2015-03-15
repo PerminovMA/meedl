@@ -1,0 +1,25 @@
+<h1 class="page-header"> Офферы </h1>
+
+<div>
+    <table class="table table-striped">
+        <tr>
+            <th>id</th><th>name</th><th>manager</th><th>client name</th><th>offer_url</th><th>revenue_per_lead</th>
+            <th>currency_type</th><th>limit_number_leads</th><th>is_active</th>
+        </tr>
+
+        <tr ng-repeat="offer in offers_list">
+            <td>{[{ offer.id }]}</td>
+            <td>{[{ offer.name }]}</td>
+            <td>{[{ offer.manager.username }]}</td>
+            <td>{[{ offer.client.name }]}</td>
+            <td> <a href="{[{ offer.offer_url }]}">{[{ offer.offer_url }]}</a></td>
+            <td>{[{ offer.revenue_per_lead }]}</td>
+            <td>{[{ offer.currency_type }]}</td>
+            <td>{[{ offer.limit_number_leads }]}</td>
+            <td>
+                <span ng-if="offer.is_active" class="glyphicon glyphicon-ok"></span>
+                <span ng-if="!offer.is_active" class="glyphicon glyphicon-minus"></span>
+            </td>
+        </tr>
+    </table>
+</div>

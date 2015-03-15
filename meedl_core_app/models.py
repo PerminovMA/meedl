@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
+from django.core.urlresolvers import reverse
 
 
 class Client(models.Model):
@@ -56,7 +57,7 @@ class Offer(models.Model):
         """ when Offer is updated, copies offer_url from Offer to all related CampaignAdv
         """
         if not created:
-            campaign_adv_list = instance.campaignadv_set.all()
+            campaign_adv_list = instance.advcampaign_set.all()
             if campaign_adv_list.count() > 0:
                 for campaign in campaign_adv_list:
                     if campaign.offer_url != instance.offer_url:
@@ -95,7 +96,7 @@ class AdvCampaign(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def get_tracking_url(self):
-        pass
+        return reverse("control_panel:detail_campaign_url", args=[self.id])
 
     @staticmethod
     def offer_url_copier(sender, instance, **kwargs):

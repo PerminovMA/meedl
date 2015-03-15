@@ -1,0 +1,31 @@
+<div class="row page-header">
+    <div class="col-md-2">
+        <h1> Компании </h1>
+    </div>
+    <div class="col-md-offset-7 col-md-3">
+            <a href="{% url "control_panel:create_campaign_url" %}" style="margin-top: 1rem;" class="btn btn-primary btn-lg">
+                Добавить компанию
+            </a>
+    </div>
+</div>
+
+<div>
+    <table class="table table-striped">
+        <tr>
+            <th>id</th><th>name</th><th>adv_platform</th><th>direction</th><th>campaign_cost</th><th>count_clicks</th><th>is_active</th>
+        </tr>
+
+        <tr ng-repeat="adv_campaign in adv_campaigns_list">
+            <td><a href="{[{ detail_campaign_url }]}{[{ adv_campaign.id }]}"> {[{ adv_campaign.id }]} </a> </td>
+            <td>{[{ adv_campaign.name }]}</td>
+            <td> <a href="{[{ adv_campaign.adv_platform.site_url }]}"> {[{ adv_campaign.adv_platform.name }]} </a> </td>
+            <td>{[{ adv_campaign.direction.name }]}</td>
+            <td>{[{ adv_campaign.campaign_cost }]}</td>
+            <td>{[{ adv_campaign.count_clicks }]}</td>
+            <td>
+                <span ng-if="adv_campaign.is_active" class="glyphicon glyphicon-ok"></span>
+                <span ng-if="!adv_campaign.is_active" class="glyphicon glyphicon-minus"></span>
+            </td>
+        </tr>
+    </table>
+</div>
