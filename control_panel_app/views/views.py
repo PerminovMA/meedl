@@ -45,7 +45,9 @@ def detail_campaign_page(request, campaign_id):
     else:
         form = DetailAdvCampaignForm(instance=campaign)
         tracking_url = form.fields.get('tracking_url')
-        if tracking_url:
+        postback_url = form.fields.get('postback_url')
+        if tracking_url and postback_url:
             tracking_url.initial = campaign.get_tracking_url()  # put text to form textfield
+            postback_url.initial = campaign.get_postback_url()
         return render(request, 'control_panel_app/detail_campaign.html',
                       {'campaign_form': form, 'campaign_id': campaign_id})

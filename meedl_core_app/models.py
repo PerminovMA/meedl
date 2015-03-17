@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.core.urlresolvers import reverse
+from urllib import urlencode
 
 
 class Client(models.Model):
@@ -90,13 +91,19 @@ class AdvCampaign(models.Model):
     is_active = models.BooleanField(default=True)
     offer = models.ForeignKey(Offer)
     count_clicks = models.PositiveIntegerField(default=0)
+    count_leads = models.PositiveIntegerField(default=0)
     rules = models.TextField(blank=True, null=True, default=None)  # rules are written in JSON format
     offer_url = models.URLField(blank=True, null=True,
                                 default=None)  # field copies from the model Offer when CampaignAdv is created
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def get_tracking_url(self):
-        return reverse("control_panel:detail_campaign_url", args=[self.id])
+        params = {"cid": self.id}
+        return reverse("meedl_core:tracking_url_onclick_url") + "?%s" % urlencode(params)   # , args=[self.id])
+
+    def get_postback_url(self):
+        params = {"cid": self.id}
+        return reverse("meedl_core:postback_url_onclick_url") + "?%s" % urlencode(params)
 
     @staticmethod
     def offer_url_copier(sender, instance, **kwargs):
@@ -105,7 +112,8 @@ class AdvCampaign(models.Model):
         if instance.offer:
             instance.offer_url = instance.offer.offer_url
         else:
-            print "WARNING! str(CampaignAdv.id) without offer"  # will be writing to the log.  # temporarily
+            print "WARNING! str(CampaignAdv.id) without offer"
+            # TODO will be writing to the log
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -117,7 +125,12 @@ class Hit(models.Model):
     user_lang = models.CharField(max_length=50, blank=True, null=True)
     user_country = models.CharField(max_length=50, blank=True, null=True)
     user_city = models.CharField(max_length=50, blank=True, null=True)
+    user_device = models.CharField(max_length=50, blank=True, null=True)
+    user_os = models.CharField(max_length=50, blank=True, null=True)
+    user_browser = models.CharField(max_length=50, blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
+    is_mobile = models.BooleanField(default=False)
+    user_ip = models.GenericIPAddressField(blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.adv_campaign
