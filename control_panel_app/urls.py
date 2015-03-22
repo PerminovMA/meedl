@@ -20,7 +20,9 @@ urlpatterns = patterns('',
                            name='campaigns_url'),
                        url(r'^create_campaign$', 'control_panel_app.views.views.create_campaign_page',
                            name='create_campaign_url'),
-                       url(r'^detail_campaign/(?P<campaign_id>\d+)/$', 'control_panel_app.views.views.detail_campaign_page',
-                           name='detail_campaign_url'),
+                        url(r'^create_offer$', 'control_panel_app.views.views.create_offer_page',
+                           name='create_offer_url'),
+                       url(r'^edit_campaign/(?P<campaign_id>\d+)/$', 'control_panel_app.views.views.edit_campaign_page',
+                           name='edit_campaign_url'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

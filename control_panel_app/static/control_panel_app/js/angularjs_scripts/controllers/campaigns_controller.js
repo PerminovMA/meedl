@@ -4,7 +4,7 @@
 
 app.controller('CampaignsController', function ($scope, $http, urls) {
 
-    $scope.detail_campaign_url = urls.detail_campaign_url;  // url configuration file located in module file
+    $scope.edit_campaign_url = urls.edit_campaign_url;  // url configuration file located in module file
 
     $http({method: 'GET', url: '/rest_api/adv_campaigns/', cache: true}).
         success(function (data, status) {

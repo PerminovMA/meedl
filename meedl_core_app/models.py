@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.core.urlresolvers import reverse
 from urllib import urlencode
+from django.db.models.query import QuerySet
+from meedl_core_app.tools.cpa_networks import CPA_NETWORKS
 
 
 class Client(models.Model):
@@ -13,11 +15,28 @@ class Client(models.Model):
         (PARTNER_TYPE, 'partner'),
     )
 
+    CPA_NETWORK_CHOICES = ((cpa.LABEL, cpa.NAME) for cpa in CPA_NETWORKS)
+
     manager = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=100, unique=True)
     site_url = models.URLField(blank=True, null=True)
     type = models.CharField(max_length=7, choices=CLIENT_TYPE_CHOICES, default=DIRECT_TYPE)
     creation_date = models.DateTimeField(auto_now_add=True)
+
+    # if CPA network not used then = Null
+    cpa_network_label = models.CharField(max_length=20, choices=CPA_NETWORK_CHOICES, null=True)
+
+    @property
+    def cpa_network(self):
+        """ :return CPA network class which corresponding cpa_network_label
+        """
+        if not self.cpa_network_label:
+            return None
+
+        for network in CPA_NETWORKS:
+            if self.cpa_network_label == network.LABEL:
+                return network
+        return None
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -26,16 +45,16 @@ class Client(models.Model):
 class OfferManager(models.Manager):
     """ Forbids use update method
     """
-    def update(self, **kwargs):
-        return None
+    def get_queryset(self):
+        return self.model.QuerySet(self.model)
 
 
 class Offer(models.Model):
-    USD_TYPE = 'USD'
+    USD_TYPE = 'USD'  # learn more about currency codes: https://en.wikipedia.org/wiki/ISO_4217
     RUBLE_TYPE = 'RUB'
     EURO_TYPE = 'EUR'
 
-    CURRENCY_TYPE_CHOICES = (  # learn more about currency codes: https://en.wikipedia.org/wiki/ISO_4217
+    CURRENCY_TYPE_CHOICES = (
                                (USD_TYPE, 'United States dollar'),
                                (RUBLE_TYPE, 'Russian ruble'),
                                (EURO_TYPE, 'Euro'),
@@ -51,7 +70,13 @@ class Offer(models.Model):
     is_active = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
+    use_sub_id = models.BooleanField(default=False)
+
     objects = OfferManager()  # OfferManager forbids use update method, because update didn't dispatch post_save signal
+
+    class QuerySet(QuerySet):
+        def update(self, **kwargs):
+            return None
 
     @staticmethod
     def offer_url_copier(sender, instance, created, **kwargs):
@@ -61,7 +86,7 @@ class Offer(models.Model):
             campaign_adv_list = instance.advcampaign_set.all()
             if campaign_adv_list.count() > 0:
                 for campaign in campaign_adv_list:
-                    if campaign.offer_url != instance.offer_url:
+                    if campaign.offer_url != instance.offer_url or instance.use_sub_id:
                         campaign.save()
 
     def __unicode__(self):
@@ -110,6 +135,12 @@ class AdvCampaign(models.Model):
         """ copies offer_url from Offer to CampaignAdv when CampaignAdv is created
         """
         if instance.offer:
+            print "UUUU"
+            if instance.offer.use_sub_id:
+                cpa_network = instance.offer.client.cpa_network
+                if cpa_network and not cpa_network.sub_id_is_added(instance.offer.offer_url):
+                    instance.offer_url = cpa_network.add_sub_id(instance.offer.offer_url, instance.id)
+                    return
             instance.offer_url = instance.offer.offer_url
         else:
             print "WARNING! str(CampaignAdv.id) without offer"

@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'meedl_core_app',
     'control_panel_app',
     'rest_framework',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (

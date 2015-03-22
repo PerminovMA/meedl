@@ -49,4 +49,5 @@ class AdvCampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdvCampaign
-        fields = ('id', 'name', 'adv_platform', 'offer', 'direction', 'campaign_cost', 'is_active', 'count_clicks')
+        fields = ('id', 'name', 'adv_platform', 'offer', 'direction', 'campaign_cost', 'is_active', 'count_clicks',
+                  'count_leads')

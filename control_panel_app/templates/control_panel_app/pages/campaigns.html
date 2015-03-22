@@ -9,22 +9,25 @@
     </div>
 </div>
 
-<div>
+<div class="row">
     <table class="table table-striped">
         <tr>
-            <th>id</th><th>name</th><th>adv_platform</th><th>direction</th><th>campaign_cost</th><th>count_clicks</th><th>is_active</th>
+            <th>id</th><th>name</th><th>campaign_cost</th>
+            <th>count_clicks</th><th>count_leads</th><th>is_active</th><th>edit</th>
         </tr>
 
         <tr ng-repeat="adv_campaign in adv_campaigns_list">
-            <td><a href="{[{ detail_campaign_url }]}{[{ adv_campaign.id }]}"> {[{ adv_campaign.id }]} </a> </td>
+            <td> {[{ adv_campaign.id }]} </td>
             <td>{[{ adv_campaign.name }]}</td>
-            <td> <a href="{[{ adv_campaign.adv_platform.site_url }]}"> {[{ adv_campaign.adv_platform.name }]} </a> </td>
-            <td>{[{ adv_campaign.direction.name }]}</td>
             <td>{[{ adv_campaign.campaign_cost }]}</td>
             <td>{[{ adv_campaign.count_clicks }]}</td>
+            <td>{[{ adv_campaign.count_leads }]}</td>
             <td>
                 <span ng-if="adv_campaign.is_active" class="glyphicon glyphicon-ok"></span>
                 <span ng-if="!adv_campaign.is_active" class="glyphicon glyphicon-minus"></span>
+            </td>
+            <td>
+                <a href="{[{ edit_campaign_url }]}{[{ adv_campaign.id }]}" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-pencil"></span></a>
             </td>
         </tr>
     </table>

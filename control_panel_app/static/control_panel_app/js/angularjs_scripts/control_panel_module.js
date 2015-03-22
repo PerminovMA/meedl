@@ -11,4 +11,4 @@ app.config(function ($interpolateProvider) {
 });
 
 // URLs config
-app.constant("urls", {detail_campaign_url: "/control_panel/detail_campaign/"});
+app.constant("urls", {edit_campaign_url: "/control_panel/edit_campaign/"});
