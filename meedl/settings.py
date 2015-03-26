@@ -85,6 +85,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 DOMAIN_URL = 'http://127.0.0.1:8000/'
 LOGIN_URL = 'control_panel:login_url'
 

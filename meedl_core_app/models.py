@@ -4,7 +4,7 @@ from django.db.models.signals import pre_save, post_save
 from django.core.urlresolvers import reverse
 from urllib import urlencode
 from django.db.models.query import QuerySet
-from meedl_core_app.tools.cpa_networks import CPA_NETWORKS
+from meedl_core_app.tools.cpa_networks import CPA_NETWORKS, get_cpa_network_out_of_label
 
 
 class Client(models.Model):
@@ -24,19 +24,11 @@ class Client(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # if CPA network not used then = Null
-    cpa_network_label = models.CharField(max_length=20, choices=CPA_NETWORK_CHOICES, null=True)
+    cpa_network_label = models.CharField(max_length=20, choices=CPA_NETWORK_CHOICES, null=True, blank=True)
 
     @property
     def cpa_network(self):
-        """ :return CPA network class which corresponding cpa_network_label
-        """
-        if not self.cpa_network_label:
-            return None
-
-        for network in CPA_NETWORKS:
-            if self.cpa_network_label == network.LABEL:
-                return network
-        return None
+        return get_cpa_network_out_of_label(self.cpa_network_label)
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -45,6 +37,7 @@ class Client(models.Model):
 class OfferManager(models.Manager):
     """ Forbids use update method
     """
+
     def get_queryset(self):
         return self.model.QuerySet(self.model)
 
@@ -55,9 +48,9 @@ class Offer(models.Model):
     EURO_TYPE = 'EUR'
 
     CURRENCY_TYPE_CHOICES = (
-                               (USD_TYPE, 'United States dollar'),
-                               (RUBLE_TYPE, 'Russian ruble'),
-                               (EURO_TYPE, 'Euro'),
+        (USD_TYPE, 'United States dollar'),
+        (RUBLE_TYPE, 'Russian ruble'),
+        (EURO_TYPE, 'Euro'),
     )
 
     client = models.ForeignKey(Client)
@@ -124,27 +117,27 @@ class AdvCampaign(models.Model):
 
     def get_tracking_url(self):
         params = {"cid": self.id}
-        return reverse("meedl_core:tracking_url_onclick_url") + "?%s" % urlencode(params)   # , args=[self.id])
+        return reverse("meedl_core:tracking_url_onclick_url") + "?%s" % urlencode(params)  # , args=[self.id])
 
-    def get_postback_url(self):
-        params = {"cid": self.id}
-        return reverse("meedl_core:postback_url_onclick_url") + "?%s" % urlencode(params)
 
     @staticmethod
-    def offer_url_copier(sender, instance, **kwargs):
+    def offer_url_copier(sender, instance, created, **kwargs):
         """ copies offer_url from Offer to CampaignAdv when CampaignAdv is created
         """
-        if instance.offer:
-            print "UUUU"
-            if instance.offer.use_sub_id:
-                cpa_network = instance.offer.client.cpa_network
-                if cpa_network and not cpa_network.sub_id_is_added(instance.offer.offer_url):
-                    instance.offer_url = cpa_network.add_sub_id(instance.offer.offer_url, instance.id)
-                    return
-            instance.offer_url = instance.offer.offer_url
-        else:
-            print "WARNING! str(CampaignAdv.id) without offer"
-            # TODO will be writing to the log
+        if created:
+            if instance.offer:
+                if instance.offer.use_sub_id:
+                    cpa_network = instance.offer.client.cpa_network
+                    if cpa_network and not cpa_network.sub_id_is_added(instance.offer.offer_url):
+                        offer_url = cpa_network.add_sub_id(instance.offer.offer_url, instance.id)
+                        # for avoid recursion use update (update didn't dispatch post_save signal).
+                        AdvCampaign.objects.filter(id=instance.id).update(offer_url=offer_url)
+                        return
+                offer_url = instance.offer.offer_url
+                AdvCampaign.objects.filter(id=instance.id).update(offer_url=offer_url)
+            else:
+                print "WARNING! str(CampaignAdv.id) without offer"
+                # TODO will be writing to the log
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -167,8 +160,36 @@ class Hit(models.Model):
         return u'%s' % self.adv_campaign
 
 
-pre_save.connect(AdvCampaign.offer_url_copier, sender=AdvCampaign, weak=False,
-                 dispatch_uid="copy_offer_url_when_CampaignAdv.save")
+class Conversion(models.Model):
+    adv_campaign = models.ForeignKey(AdvCampaign, null=True, blank=True)  # it's sub_id
+    payout = models.FloatField(null=True, blank=True)  # the amount of payment
+    payout_currency = models.CharField(max_length=30, null=True, blank=True)
+    conversion_time = models.DateTimeField(null=True, blank=True)
+    user_ip = models.GenericIPAddressField(blank=True, null=True)
+    user_country = models.CharField(max_length=50, blank=True, null=True)
+    user_city = models.CharField(max_length=50, blank=True, null=True)
+    user_browser = models.CharField(max_length=30, blank=True, null=True)
+    user_os = models.CharField(max_length=30, blank=True, null=True)
+    user_device = models.CharField(max_length=30, blank=True, null=True)
+    status = models.CharField(max_length=30, blank=True, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    offer_id = models.CharField(max_length=30, blank=True, null=True)
+    offer_name = models.CharField(max_length=30, blank=True, null=True)
+
+    def __unicode__(self):
+        return u'%s' % str(self.conversion_time)
+
+
+post_save.connect(AdvCampaign.offer_url_copier, sender=AdvCampaign, weak=False,
+                  dispatch_uid="copy_offer_url_when_CampaignAdv.save")
 
 post_save.connect(Offer.offer_url_copier, sender=Offer, weak=False,
                   dispatch_uid="copy_offer_url_when_Offer.save")
+
+
+class TestTable(models.Model):
+    some_text = models.CharField(max_length=250, null=True, blank=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return u'%s' % str(self.some_text)

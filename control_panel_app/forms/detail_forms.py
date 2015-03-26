@@ -8,13 +8,11 @@ from django.forms import TextInput, CharField
 class DetailAdvCampaignForm(ModelForm):
     tracking_url = CharField(label="tracking url", required=False,
                              widget=TextInput(attrs={'size': '50rem;', 'readonly': True}))
-    postback_url = CharField(label="postback url", required=False,
-                             widget=TextInput(attrs={'size': '50rem;', 'readonly': True}))
 
     class Meta:
         model = AdvCampaign
         fields = ['name', 'adv_platform', 'direction', 'campaign_cost', 'offer', 'is_active', 'count_clicks',
-                  'count_leads', 'offer_url', 'tracking_url', 'postback_url']
+                  'count_leads', 'offer_url', 'tracking_url']
         widgets = {
             'offer_url': TextInput(attrs={'readonly': True, 'size': '50rem;'}),
         }

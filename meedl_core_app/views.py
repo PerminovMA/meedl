@@ -4,6 +4,8 @@ from meedl_core_app.models import AdvCampaign, Hit
 from django.db.models import F
 from meedl_core_app.tools.http_meta_info_parsers import UserAgentParser
 from meedl_core_app.tools.tools import get_client_ip
+from meedl_core_app.tools.cpa_networks import get_cpa_network_out_of_label
+from meedl_core_app.models import Conversion, TestTable
 
 
 def index(request):
@@ -47,17 +49,29 @@ def tracking_url_onclick(request):
     return HttpResponseRedirect(target_url)
 
 
-def postback_url_onclick(request):
-    campaign_id = request.GET.get("cid")
-    if campaign_id is None:
-        return HttpResponse("Bad request", status=400)
-    try:
-        campaign_id = int(campaign_id)
-    except ValueError:
-        return HttpResponse("Bad request", status=400)
+def postback_url_handler(request):
 
-    campaign = get_object_or_404(AdvCampaign, id=campaign_id)
-    campaign.count_leads = F('count_leads') + 1
-    campaign.save(update_fields=['count_leads'])
+    TestTable.objects.create(some_text=request.build_absolute_uri())
 
-    return HttpResponse(campaign.name)
+    cpa_network_label = request.GET.get("cpa_network")
+
+    if not cpa_network_label:
+        return HttpResponse("cpa_network parameter does not exists", status=400)
+
+    cpa_network = get_cpa_network_out_of_label(cpa_network_label)
+    if not cpa_network:
+        return HttpResponse("CPA network with that cpa_network label not exists")
+
+    dict_data = cpa_network.get_data_for_conversion_model(request)
+
+    if 'adv_campaign' in dict_data and dict_data['adv_campaign']:
+        adv_campaign = AdvCampaign.objects.filter(id=dict_data['adv_campaign']).first()
+        adv_campaign.count_leads = F('count_leads') + 1
+        adv_campaign.save(update_fields=['count_leads'])
+        dict_data['adv_campaign'] = adv_campaign
+    else:
+        dict_data['adv_campaign'] = None
+
+    Conversion.objects.create(**dict_data)
+
+    return HttpResponse("considered")
