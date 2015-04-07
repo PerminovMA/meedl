@@ -1,3 +1,4 @@
+# -*- coding: utf_8 -*-
 __author__ = 'PerminovMA@live.ru'
 
 from datetime import datetime
@@ -58,7 +59,8 @@ class CityAds(CPABase):  # NOT TESTED
             "adv_campaign": request_obj.GET.get('subaccount'),  # it's sub_id
             "payout": request_obj.GET.get('payout'),
             "payout_currency": request_obj.GET.get('payout_currency'),
-            "conversion_time": request_obj.GET.get('conversion_time'),  # datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
+            "conversion_time": request_obj.GET.get('conversion_time'),
+            # datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
             "user_ip": request_obj.GET.get('ip'),
             "user_country": request_obj.GET.get('country'),
             "user_city": request_obj.GET.get('city'),
@@ -134,21 +136,55 @@ class AdSup(CPABase):
 
         return d
 
-    # postback example http://meedl.cloudapp.net/core/postback?cpa_network=ad_sup&aff_sub={aff_sub}&ip={ip}
-    # &datetime={datetime}&currency={currency}&payout={payout}&device_brand={device_brand}&device_os={device_os}
-    # &offer_id={offer_id}&offer_name={offer_name}
+        # postback example http://meedl.cloudapp.net/core/postback?cpa_network=ad_sup&aff_sub={aff_sub}&ip={ip}
+        # &datetime={datetime}&currency={currency}&payout={payout}&device_brand={device_brand}&device_os={device_os}
+        # &offer_id={offer_id}&offer_name={offer_name}
 
 
-CPA_NETWORKS = [CityAds, AdInfo, AdSup]  # to use the CPA networks you need to put they here
+class MobiMops(CPABase):
+    LABEL = 'mobimops'
+    NAME = 'mobimops'
+
+    @staticmethod
+    def add_sub_id(url_str, sub_id):
+        # MobiMops example url http://r.mobimops.com/X2q?sid1={sid1} with sub_id
+        return '%s?sid1=%s' % (url_str, str(sub_id))
+
+    @staticmethod
+    def sub_id_is_added(url_str):
+        if 'sid1=' in url_str:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_data_for_conversion_model(request_obj):
+        d = {
+            "adv_campaign": request_obj.GET.get('sid1'),  # it's sub_id
+            "payout": request_obj.GET.get('payout'),
+            "conversion_time": datetime.fromtimestamp(
+                float(request_obj.GET.get('time'))) if request_obj.GET.get('time') else None,  # unix timestamp
+            "user_ip": request_obj.GET.get('ip'),
+            "user_browser": request_obj.GET.get('user_agent'),
+            # (1 - ожидает обработки, 2 - подтверждено, 3 - отклонено, 4 - холд, 5 - обработано)
+            "status": request_obj.GET.get('status'),
+        }
+
+        return d
+
+    # postback example http://meedl.cloudapp.net/core/postback?cpa_network=mobimops&payout={payout}&sid1={sid1}&time={time}&ip={ip}&user_agent={user_agent}&status={status}
+
+
+CPA_NETWORKS = [CityAds, AdInfo, AdSup, MobiMops]  # to use the CPA networks you need to put they here
 
 
 def get_cpa_network_out_of_label(cpa_network_label):
-        """ :return CPA network class which corresponding cpa_network_label
-        """
-        if not cpa_network_label:
-            return None
-
-        for network in CPA_NETWORKS:
-            if cpa_network_label == network.LABEL:
-                return network
+    """ :return CPA network class which corresponding cpa_network_label
+    """
+    if not cpa_network_label:
         return None
+
+    for network in CPA_NETWORKS:
+        if cpa_network_label == network.LABEL:
+            return network
+    return None
